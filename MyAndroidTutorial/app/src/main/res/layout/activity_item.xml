@@ -14,13 +14,15 @@
 
             <RelativeLayout
                 android:gravity="center"
-                android:layout_width="300dp"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:paddingTop="10sp">
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/title_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp">
                     <EditText
                         android:id="@+id/title_text"
                         android:hint="@string/title"
@@ -33,7 +35,9 @@
                     android:layout_below="@id/title_layout"
                     android:id="@+id/content_layout"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp">
                     <EditText
                         android:id="@+id/content_text"
                         android:hint="@string/content"
@@ -44,18 +48,17 @@
                 </android.support.design.widget.TextInputLayout>
             </RelativeLayout>
 
-            <Button
-                android:id="@+id/produce"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:onClick="OnClickProduce"
-                android:text="生成"
-                android:textAppearance="?android:attr/textAppearanceMedium"/>
-
         </TableRow>
 
-
-
+        <Button
+            android:id="@+id/produce"
+            android:onClick="OnClickProduce"
+            android:text="手動產生條碼圖"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:background="@color/text_background"
+            android:textColor="@color/text_color"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"/>
 
         <!-- 顯示圖片 -->
         <ImageView

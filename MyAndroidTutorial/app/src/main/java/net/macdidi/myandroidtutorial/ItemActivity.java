@@ -1,6 +1,11 @@
 package net.macdidi.myandroidtutorial;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.MediaStore;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,6 +25,7 @@ import android.preference.PreferenceManager;
 import java.io.File;
 
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
@@ -31,20 +37,23 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import org.w3c.dom.Text;
+
 public class ItemActivity extends AppCompatActivity {
 
     // 啟動功能用的請求代碼
     private static final int START_CAMERA = 0;
     private static final int START_RECORD = 1;
-    private static final int START_LOCATION = 2;
-    private static final int START_ALARM = 3;
-    private static final int START_COLOR = 4;
+    private static final int START_COLOR = 2;
 
-    // 檔案名稱
+    // 照片檔案名稱
     private String fileName;
+    // bitmap檔案名稱
     private String recFileName;
     // 照片
     private ImageView picture;
+    // 寫入外部儲存設備授權請求代碼
+    private static final int REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION = 100;
 
     // 記事物件
     private Item item;
@@ -53,7 +62,6 @@ public class ItemActivity extends AppCompatActivity {
 
     //小吃bar
     private Snackbar snackbar;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -170,13 +178,11 @@ public class ItemActivity extends AppCompatActivity {
             switch (requestCode) {
                 // 照像
                 case START_CAMERA:
+                    // 設定照片檔案名稱
+                    item.setFileName(fileName);
                     break;
                 case START_RECORD:
                     item.setFileName(fileName);
-                    break;
-                case START_LOCATION:
-                    break;
-                case START_ALARM:
                     break;
                 // 設定顏色
                 case START_COLOR:
@@ -224,21 +230,6 @@ public class ItemActivity extends AppCompatActivity {
         return result;
     }
 
-
-    private File configFileName(String prefix, String extension) {
-        // 如果記事資料已經有檔案名稱
-        if (item.getFileName() != null && item.getFileName().length() > 0) {
-            fileName = item.getFileName();
-        }
-        // 產生檔案名稱
-        else {
-            fileName = FileUtil.getUniqueFileName();
-        }
-
-        return new File(FileUtil.getExternalStorageDir(FileUtil.APP_DIR),
-                prefix + fileName + extension);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -276,7 +267,11 @@ public class ItemActivity extends AppCompatActivity {
 
         // 判斷該執行什麼工作，目前還沒有加入需要執行的工作
         switch (itemId) {
-            case R.id.camera_item:
+            case R.id.take_picture:
+                // 讀取與處理寫入外部儲存設備授權請求
+                requestStoragePermission();
+                break;
+            case R.id.take_bitmap:
                 processScan();
                 break;
             case R.id.color_edit_item:
@@ -299,5 +294,88 @@ public class ItemActivity extends AppCompatActivity {
 
         }
     }
+
+    private File configFileName(String prefix, String extension) {
+        // 如果記事資料已經有檔案名稱
+        if (item.getFileName() != null && item.getFileName().length() > 0) {
+            fileName = item.getFileName();
+        }
+        // 產生檔案名稱
+        else {
+            fileName = FileUtil.getUniqueFileName();
+        }
+
+        return new File(FileUtil.getExternalStorageDir(FileUtil.APP_DIR),
+                prefix + fileName + extension);
+    }
+
+    // 拍攝照片
+    private void takePicture() {
+        // 啟動相機元件用的Intent物件
+        Intent intentCamera =
+                new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+        // 照片檔案名稱
+        File pictureFile = configFileName("P", ".jpg");
+        Uri uri = Uri.fromFile(pictureFile);
+        // 設定檔案名稱
+        intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+        // 啟動相機元件
+        startActivityForResult(intentCamera, START_CAMERA);
+    }
+
+    // 讀取與處理寫入外部儲存設備授權請求
+    private void requestStoragePermission() {
+        // 如果裝置版本是6.0（包含）以上
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // 取得授權狀態，參數是請求授權的名稱
+            int hasPermission = checkSelfPermission(
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+            // 如果未授權
+            if (hasPermission != PackageManager.PERMISSION_GRANTED) {
+                // 請求授權
+                //     第一個參數是請求授權的名稱
+                //     第二個參數是請求代碼
+                requestPermissions(
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION);
+                return;
+            }
+        }
+
+        // 如果裝置版本是6.0以下，
+        // 或是裝置版本是6.0（包含）以上，使用者已經授權，
+        // 拍攝照片
+        takePicture();
+    }
+
+    // 覆寫請求授權後執行的方法
+//     第一個參數是請求代碼
+//     第二個參數是請求授權的名稱
+//     第三個參數是請求授權的結果，PERMISSION_GRANTED或PERMISSION_DENIED
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String[] permissions,
+                                           int[] grantResults) {
+        // 如果是寫入外部儲存設備授權請求
+        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE_PERMISSION) {
+            // 如果在授權請求選擇「允許」
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // 拍攝照片
+                takePicture();
+            }
+            // 如果在授權請求選擇「拒絕」
+            else {
+                // 顯示沒有授權的訊息
+                Toast.makeText(this, R.string.write_external_storage_denied,
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+        else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
 }
 

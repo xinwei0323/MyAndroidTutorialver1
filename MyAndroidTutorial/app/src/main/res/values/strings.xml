@@ -3,7 +3,7 @@
     <string name="title">商店名稱</string>
     <string name="enter_title">輸入店名</string>
     <string name="content">卡號</string>
-    <string name="enter_content">輸入卡號</string>
+    <string name="enter_content">輸入卡片上的編號</string>
 
     <string name="delete">刪除</string>
     <string name="delete_item">確定要刪除 %1$d 個項目？</string>
@@ -11,6 +11,8 @@
 
     <string name="default_color">預設的顏色</string>
     <string name="default_color_summary">新增記事的預設顏色</string>
+
+    <string name="write_external_storage_denied">沒有寫入外部儲存設備授權</string>
 
     <string name="default_notify">預設提醒時間</string>
     <string name="default_notify_summary">在指定的時間之前通知</string>

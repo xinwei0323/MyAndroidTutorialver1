@@ -45,11 +45,14 @@ public class MainActivity extends AppCompatActivity {
         // 建立資料庫物件
         itemDAO = new ItemDAO(getApplicationContext());
 
+        /*
         // 如果資料庫是空的，就建立一些範例資料
         // 這是為了方便測試用的，完成應用程式以後可以拿掉
+        // ItemDAO有建立範例才使用
         if (itemDAO.getCount() == 0) {
             itemDAO.sample();
         }
+        */
 
         // 取得所有記事資料
         items = itemDAO.getAll();
@@ -69,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Snackbar.make(fab,"歡迎使用方便卡", Snackbar.LENGTH_LONG).setAction("關閉", new View.OnClickListener() {
+        Snackbar.make(fab,"歡迎使用方便卡", Snackbar.LENGTH_LONG).setAction("提示", new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(MainActivity.this,"請點擊+新增一張新卡",Toast.LENGTH_SHORT).show();

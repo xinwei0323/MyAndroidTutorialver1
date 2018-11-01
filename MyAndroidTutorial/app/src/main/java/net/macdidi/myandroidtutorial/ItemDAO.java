@@ -185,12 +185,13 @@ public class ItemDAO {
         return result;
     }
 
+    /*若需要範例才建立
     // 建立範例資料
     public void sample() {
         Item item = new Item(0, new Date().getTime(), Colors.RED, "歡迎使用方便card，這是範例。", "", "", "", 0, 0, 0);
 
         insert(item);
 
-    }
+    }*/
 
 }
